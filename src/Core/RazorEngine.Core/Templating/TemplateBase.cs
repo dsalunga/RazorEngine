@@ -351,5 +351,17 @@ namespace RazorEngine.Templating
             return path;
         }
         #endregion
+
+        #region Classes
+        /// <summary>'Fake' Html class purely for the purposes of mimicking the standard Razor syntax of @Html.Raw(...).</summary>
+        public static class Html
+        {
+            /// <summary>The same Raw method that is in TemplateBase.</summary>
+            public static IEncodedString Raw(string rawString)
+            {
+                return new RawString(rawString);
+            }
+        }
+        #endregion
     }
 }
