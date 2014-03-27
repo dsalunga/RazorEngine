@@ -58,7 +58,7 @@
                 GenerateInMemory = true,
                 GenerateExecutable = false,
                 IncludeDebugInformation = false,
-                CompilerOptions = "/target:library /optimize"
+                CompilerOptions = "/target:library /optimize /define:RAZORENGINE"
             };
 
             var assemblies = CompilerServicesUtility
@@ -102,7 +102,7 @@
             var result = Compile(context);
             var compileResult = result.Item1;
 
-            if (compileResult.Errors != null && compileResult.Errors.Count > 0)
+            if (compileResult.Errors != null && compileResult.Errors.HasErrors)
                 throw new TemplateCompilationException(compileResult.Errors, result.Item2, context.TemplateContent);
 
             return Tuple.Create(

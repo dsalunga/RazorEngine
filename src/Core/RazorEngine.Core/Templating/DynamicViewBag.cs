@@ -14,6 +14,20 @@
         private readonly IDictionary<string, object> _dict = new Dictionary<string, object>();
         #endregion
 
+        /// <summary>
+        /// Initialises a new instance of <see cref="DynamicViewBag"/>
+        /// </summary>
+        /// <param name="viewbag">The parent view bag.</param>
+        public DynamicViewBag(DynamicViewBag viewbag = null)
+        {
+            if (viewbag != null)
+            {
+                // Add the viewbag to the current dictionary.
+                foreach (var pair in viewbag._dict)
+                    _dict.Add(pair);
+            }
+        }
+
         #region DynamicObject Overrides
 
         /// <summary>
@@ -61,6 +75,23 @@
 
         #region Helper Methods
 
+        /// <summary>
+        /// Set a value in this instance of DynamicViewBag.
+        /// </summary>
+        /// <param name="propertyName">
+        /// The property name through which this value can be get/set.
+        /// </param>
+        /// <param name="value">
+        /// The value that will be assigned to this property name.
+        /// </param>
+        public void SetValue(string propertyName, object value)
+        {
+            if (propertyName == null)
+                throw new ArgumentNullException("The propertyName parameter may not be NULL.");
+
+            _dict[propertyName] = value;
+        }
+        
         /// <summary>
         /// Add a value to this instance of DynamicViewBag.
         /// </summary>

@@ -14,7 +14,7 @@ namespace RazorEngine.Templating
     public abstract class TemplateBase : MarshalByRefObject, ITemplate
     {
         #region Fields
-        private ExecuteContext _context;
+        protected ExecuteContext _context;
         #endregion
 
         #region Constructor
@@ -69,7 +69,9 @@ namespace RazorEngine.Templating
             if (instance == null)
                 throw new ArgumentException("No template could be resolved with name '" + cacheName + "'");
 
-            return new TemplateWriter(tw => tw.Write(instance.Run(new ExecuteContext())));
+            return new TemplateWriter(tw =>
+                tw.Write(instance.Run(
+                    TemplateService.CreateExecuteContext(ViewBag))));
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace RazorEngine.Templating
             _context = context;
 
             var builder = new StringBuilder();
-            using (var writer = new StringWriter(builder)) 
+            using (var writer = new StringWriter(builder))
             {
                 _context.CurrentWriter = writer;
                 Execute();
@@ -131,6 +133,11 @@ namespace RazorEngine.Templating
             {
                 // Get the layout template.
                 var layout = ResolveLayout(Layout);
+
+                if (layout == null)
+                {
+                    throw new ArgumentException("Template you are trying to run uses layout, but no layout found in cache or by resolver.");
+                }
 
                 // Push the current body instance onto the stack for later execution.
                 var body = new TemplateWriter(tw => tw.Write(builder.ToString()));
@@ -191,7 +198,7 @@ namespace RazorEngine.Templating
 
             helper.WriteTo(_context.CurrentWriter);
         }
-        
+
         /// <summary>
         /// Writes an attribute to the result.
         /// </summary>
@@ -314,7 +321,7 @@ namespace RazorEngine.Templating
                 throw new ArgumentNullException("writer");
 
             if (value == null) return;
-            
+
             var encodedString = value as IEncodedString;
             if (encodedString != null)
             {
@@ -334,6 +341,8 @@ namespace RazorEngine.Templating
         /// <param name="helper">The template writer helper.</param>
         public virtual void WriteTo(TextWriter writer, TemplateWriter helper)
         {
+            if (helper == null) return;
+
             helper.WriteTo(writer);
         }
 
@@ -345,7 +354,8 @@ namespace RazorEngine.Templating
         public virtual string ResolveUrl(string path)
         {
             // TODO: Actually resolve the url
-            if (path.StartsWith("~")) {
+            if (path.StartsWith("~"))
+            {
                 path = path.Substring(1);
             }
             return path;
